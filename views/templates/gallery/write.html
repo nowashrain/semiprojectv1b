@@ -1,0 +1,85 @@
+{% extends 'include/base.html' %}
+
+{% block title %}
+세미프로젝트 - 갤러리 글쓰기
+{% endblock %}
+
+{% block style %}
+<script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit"
+        async defer></script>
+<script type="text/javascript">
+    var onloadCallback = () => {
+        grecaptcha.render('captcha', { 'sitekey' : '' });
+    };
+</script>
+<style>
+    form { width: 450px; margin:50px auto; }
+    th { width: 150px; }
+    tr { height: 35px }
+    tr:nth-child(3), tr:nth-child(4) { vertical-align: top }
+    #listbtn { margin-left: 95px }
+    input, textarea, button { padding: 5px }
+</style>
+{% endblock %}
+
+{% block main %}
+<main>
+    <h2>갤러리 글쓰기</h2>
+    <form name="galleryfrm" enctype="multipart/form-data">
+        <table>
+            <tr><th>제목</th><td><input type="text" name="title" id="title" required></td></tr>
+            <tr><th>작성자</th><td><input type="text" name="userid" id="userid" value="zzyzzy" readonly></td></tr>
+            <tr><th>본문</th><td><textarea name="contents" id="contents" rows="10" cols="45" required></textarea></td></tr>
+            <tr><th>첨부파일</th><td>
+                <div><input type="file" name="files" id="file1" required></div>
+                <div><input type="file" name="files" id="file2"></div>
+                <div><input type="file" name="files" id="file3"></div>
+            </td></tr>
+            <tr><th>자동가입방지</th><td><div id="captcha"></div></td></tr>
+            <tr><td colspan="2">
+                <button type="button" id="listbtn" onclick="location.href='/gallery/list/1'">리스트로</button>
+                <button type="submit" id="writeokbtn">입력완료</button>
+            </td></tr>
+        </table>
+    </form>
+</main>
+{% endblock %}
+
+{% block script %}
+<script>
+    let galleryfrm = document.galleryfrm;
+
+    galleryfrm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(galleryfrm);
+
+        try {
+            const response = await fetch('/gallery/write', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                // 서버에서 에러 응답이 온 경우
+                const errorData = await response.json();
+
+                if (response.status === 422) {
+                    alert('입력한 데이터에 문제가 있습니다. 내용을 다시 확인해주세요.');
+                } else {
+                    alert('서버에 문제가 발생했습니다. 다시 시도해주세요.');
+                }
+
+                console.error('Error:', errorData);
+            } else {
+                // 성공적인 응답을 받았을 때
+                alert('글이 성공적으로 작성되었습니다.');
+                window.location.href = '/gallery/list/1';
+            }
+        } catch (error) {
+            console.error('Fetch error:', error);
+            alert('요청을 처리하는 중 문제가 발생했습니다.');
+        }
+    });
+</script>
+{% endblock %}

@@ -5,7 +5,7 @@ from starlette.responses import HTMLResponse, RedirectResponse
 from starlette.templating import Jinja2Templates
 
 from app.dbfactory import get_db
-from app.service.board import BoardService
+from app.services.board import BoardService
 
 board_router = APIRouter()
 templates = Jinja2Templates(directory='views/templates')
