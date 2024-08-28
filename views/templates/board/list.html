@@ -80,3 +80,14 @@
     </div>
 </main>
 {% endblock %}
+
+{% block script %}
+<script>
+    let writebtn = document.querySelector('#writebtn');
+
+    writebtn.addEventListener('click',() => {
+        location.href = '/board/write'
+    })
+</script>
+
+{% endblock %}
