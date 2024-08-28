@@ -31,11 +31,12 @@ templates = Jinja2Templates(directory='views/templates')
 # cpg = 23: 21 22 23 24 25 26 27
 # stpgb = ((cpg - 1) / 10) * 10 + 1
 
-@board_router.get('/list/{cpg}', response_class=HTMLResponse)
-async def list(req: Request, cpg: int, db: Session = Depends(get_db)):
+@board_router.get('/list/{ftype}/{fkey}/{cpg}', response_class=HTMLResponse)
+async def list(req: Request, ftyoe: str, fkey: str,
+               cpg: int, db: Session = Depends(get_db)):
     try:
         stpgb = int((cpg - 1) / 10) * 10 + 1
-        bdlist = BoardService.select_board(db, cpg)
+        bdlist = BoardService.find_select_board(db, ftyoe, fkey, cpg)
         return templates.TemplateResponse('board/list.html',
                                           {'request': req, 'bdlist': bdlist, 'cpg': cpg, 'stpgb': stpgb})
 
@@ -52,6 +53,6 @@ async def write(req: Request):
     return templates.TemplateResponse('board/write.html', {'request': req})
 
 
-@board_router.get('/view', response_class=HTMLResponse)
+@board_router.get('/view/{bno}', response_class=HTMLResponse)
 async def view(req: Request):
     return templates.TemplateResponse('board/view.html', {'request': req})
