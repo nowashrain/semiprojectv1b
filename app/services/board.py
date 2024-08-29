@@ -53,10 +53,16 @@ class BoardService:
     def selectone_board(bno, db):
         try:
             stmt = select(Board).where(Board.bno == bno)
-            result = db.execute(stmt)
+            result = db.execute(stmt).scalars().first()
 
             return result
 
         except SQLAlchemyError as ex:
             print(f'▶▶▶ selectone_board 오류발생 : {str(ex)}')
+
+
+
+
+
+
 
