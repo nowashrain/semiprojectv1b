@@ -1,3 +1,4 @@
+from collections import defaultdict
 from typing import List
 
 from fastapi import APIRouter, Request, UploadFile, File
@@ -8,7 +9,7 @@ from starlette.templating import Jinja2Templates
 
 from app.dbfactory import get_db
 from app.schema.gallery import NewGallery
-from app.services.gallery import GalleryService, process_upload, get_gallery_data
+from app.services.gallery import GalleryService, get_gallery_data, process_upload
 
 gallery_router = APIRouter()
 templates = Jinja2Templates(directory='views/templates')

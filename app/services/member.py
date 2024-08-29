@@ -43,9 +43,9 @@ class MemberService:
             find_login = and_(Member.userid == data.get('userid'),
                               Member.passwd == data.get('passwd'))
             stmt = select(Member.userid).where(find_login)
-            result = db.execute(stmt).scalars().first()
+            result = db.execute(stmt)
 
-            return result
+            return result.scalars().first()
 
         except SQLAlchemyError as ex:
             print(f'▶▶▶ login_member 오류 발생 : {str(ex)}')

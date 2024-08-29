@@ -1,7 +1,9 @@
-from sqlalchemy import select, or_
+from certifi import where
+from sqlalchemy import select, or_, update, insert, func
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import joinedload, contains_eager
 
-from app.model.board import Board
+from app.model.board import Board, Reply
 
 
 class BoardService:
@@ -52,15 +54,43 @@ class BoardService:
     @staticmethod
     def selectone_board(bno, db):
         try:
-            stmt = select(Board).where(Board.bno == bno)
+            # 본문글에 대한 조회수 증가
+            # update board set view = views + 1
+            # where bno = ?
+            stmt = update(Board).where(Board.bno == bno)\
+                    .values(views=Board.views + 1)
+            result = db.execute(stmt)
+
+
+            # contains_eager : 관계 맺은 하위 객체의 내용 즉시 로딩
+            # 본문글 + 댓글 읽어오기
+            stmt = select(Board).outerjoin(Board.replys)\
+                .options(contains_eager(Board.replys))\
+                .where(Board.bno == bno).order_by(Reply.rpno)
             result = db.execute(stmt).scalars().first()
 
+            db.commit()
             return result
 
         except SQLAlchemyError as ex:
             print(f'▶▶▶ selectone_board 오류발생 : {str(ex)}')
+            db.rollback()
+
+    @staticmethod
+    def insert_reply(db, rp):
+        try:
+            stmt = select(func.coalesce(func.max(Reply.rno),0)+1)
+            next_rno = db.execute(stmt).scalar.one()
+
+            stmt = insert(Reply).where(userid=rp.userid,
+                   reply=rp.reply, bno=rp.bno, rpno=next_rno)
+            result = db.execute(stmt)
+            return result
 
 
+        except SQLAlchemyError as ex:
+            print(f'▶▶▶ selectone_board 오류발생 : {str(ex)}')
+            db.rollback()
 
 
 

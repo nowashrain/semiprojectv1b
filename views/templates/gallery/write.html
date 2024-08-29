@@ -9,7 +9,7 @@
         async defer></script>
 <script type="text/javascript">
     var onloadCallback = () => {
-        grecaptcha.render('captcha', { 'sitekey' : '' });
+        grecaptcha.render('captcha', { 'sitekey' : '6LcR1HApAAAAACVzBPajTrarqUb1bPux9zUWlvzw' });
     };
 </script>
 <style>
@@ -52,34 +52,23 @@
     galleryfrm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const formData = new FormData(galleryfrm);
-
-        try {
-            const response = await fetch('/gallery/write', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (!response.ok) {
-                // 서버에서 에러 응답이 온 경우
-                const errorData = await response.json();
-
-                if (response.status === 422) {
-                    alert('입력한 데이터에 문제가 있습니다. 내용을 다시 확인해주세요.');
-                } else {
-                    alert('서버에 문제가 발생했습니다. 다시 시도해주세요.');
-                }
-
-                console.error('Error:', errorData);
-            } else {
-                // 성공적인 응답을 받았을 때
-                alert('글이 성공적으로 작성되었습니다.');
-                window.location.href = '/gallery/list/1';
-            }
-        } catch (error) {
-            console.error('Fetch error:', error);
-            alert('요청을 처리하는 중 문제가 발생했습니다.');
+        if (grecaptcha.getResponse() === '') {
+            alert('자동가입방지를 클릭하세요!');
+            return;
         }
+
+        const formData = new FormData(galleryfrm);
+        // multipart 형식으로 전송해야 하기 때문에
+        // formData.append(키, 값) 형태로 추가
+        formData.append('captcha', grecaptcha.getResponse());
+
+        await fetch('/gallery/write', {
+            method: 'POST',
+            body: formData,
+            redirect: 'follow'
+        }).then((res) => {
+            if (res.redirected) location.href = res.url;
+        });
     });
 </script>
 {% endblock %}

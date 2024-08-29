@@ -6,7 +6,7 @@ from starlette.templating import Jinja2Templates
 
 from app.dbfactory import get_db
 from app.schema.member import NewMember
-from services.member import MemberService
+from app.services.member import MemberService
 
 
 member_router = APIRouter()
@@ -70,7 +70,7 @@ async def error(req: Request):
 
 
 @member_router.get('/myinfo', response_class=HTMLResponse)
-async def myinfo(req: Request, db: Session =Depends(get_db)):
+async def myinfo(req: Request, db: Session = Depends(get_db)):
     try:
         if 'logined_uid' not in req.session:  # 로그인하지 않았다면
             return RedirectResponse(url='/member/login', status_code=303)
